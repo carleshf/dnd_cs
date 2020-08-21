@@ -1,6 +1,9 @@
 # D&D 5e Combat Simulator
 
-
+- [D&D 5e Combat Simulator](#d-d-5e-combat-simulator)
+  * [Creating characters and actions](#creating-characters-and-actions)
+    + [Simple characters](#simple-characters)
+    + [Complex characters](#complex-characters)
 
 ## Creating characters and actions
 
@@ -136,7 +139,7 @@ mage_lvl1.showActions()
   [DEFAULT ACTION]
   attack to lowesthp enemy with ability throw of a 1d20 +2 with a DC of "enemy AC" to damage 1d8 points
   [CONDITIONAL ACTION]
-  when undefined undefined undefined undefined, attack to lowestac enemy with ability throw of a 1d20 +5 with a DC of "enemy AC" to damage 3d8 points (number of charges: 1)
+  attack to lowestac enemy with ability throw of a 1d20 +5 with a DC of "enemy AC" to damage 3d8 points (number of charges: 1)
   [CONDITIONAL ACTION]
   when own hp <= half, heal own to restore 2d4 +2 points (number of charges: 2)
-``
+```
