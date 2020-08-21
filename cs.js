@@ -40,6 +40,7 @@ function score2mod(score) {
 }
 
 function str2dice(str) {
+	// Transforms a string for a dice (aka, 1d20) to a vector.
 	var pieces = str.split('d')
 	if(pieces[0] == '') {
 		pieces[0] = 1
@@ -48,6 +49,7 @@ function str2dice(str) {
 }
 
 function dice2str(dice) {
+	// Transforms a vector (aka, [1, 20]) to a string for dice (aka, 1d20).
 	return dice[0] + 'd' + dice[1]
 }
 
@@ -66,13 +68,13 @@ class Character {
 		this.init = this.mods[1]
 		this.hp = hp
 		this.ca = ca
-		this.default = []
-		this.actions = []
+		this.default_action = []
+		this.conditional_actions = []
 	}
 
 	show() {
 		// Prints the definition of a character
-		let x = '[CHARACTER] ' + this.name + ' (' + (this.default.length + this.actions.length) + ' action(s))'
+		let x = '[CHARACTER] ' + this.name + ' (' + (this.default_action.length + this.conditional_actions.length) + ' action(s))'
 		console.group()
 		console.log(x)
 		//console.log('-'.repeat(x.length))
@@ -84,17 +86,24 @@ class Character {
 		console.groupEnd()
 	}
 
+	showActions() {
+		var actions = this.default_action.concat(this.conditional_actions)
+		for(var ii = 0; ii < actions.length; ii++) {
+			actions[ii].show()
+		}
+	}
+
 	addAction(action) {
 		if(!action.valid) {
 			console.log('Given action is invalid.')
 		} else {
 			if(action.constructor.name == 'DefaultAction') {
-				if(this.default.length == 1) {
+				if(this.default_action.length == 1) {
 					console.warn('Current character already has a default action. It will be overwritten.')
 				}
-				this.default = [action]
+				this.default_action = [action]
 			} else if(action.constructor.name == 'ConditionalAction') {
-				this.actions.push(action)
+				this.conditional_actions.push(action)
 			} else {
 				console.log('Invalid action. Only DefaultAction and ConditionalAction can be added.')
 			}
@@ -118,7 +127,8 @@ class Action {
 		//    . hab_mod (int): Modifier to be added or subtracted to the 
 		//      ability throw.
 		//    . hab_dc (int): Difficultly class required to overcome (>=) in 
-		//      order to be able to perform this action.
+		//      order to be able to perform this action. If empty, DC of 
+		//      enemy will be used.
 		//    . dam_dic (str): Defined the damage dice (for attach), and damage
 		//      healing. Follows the format (num)d(sides).
 		//    . dam_mod (int): Modifier to be added or subtracted to the
@@ -174,8 +184,7 @@ class Action {
 		}
 
 		if(hab_dc == '' & this.hab_dic != '') {
-			this.valid = false
-			console.error('Created action that requires an ability throw (' + dice2str(this.hab_dic) + ') but not hab_dc was provided.')
+			this.hab_dc = ''
 		} else {
 			this.hab_dc = parseInt(hab_dc)
 		}
@@ -203,7 +212,11 @@ class Action {
 			} else if(this.hab_mod < 0) {
 				str = str + ' ' + this.hab_mod
 			}
-			str = str + ' with a DC of ' + this.hab_dc + ' '
+			if(this.hab_dc != '') {
+				str = str + ' with a DC of ' + this.hab_dc + ' '
+			} else {
+				str = str + ' with a DC of "enemy AC" '
+			}
 		}
 		if(this.type == 'attack') {
 			str = str + 'to damage ' + dice2str(this.dam_dic)
@@ -260,9 +273,10 @@ class ConditionalAction extends Action {
 
 	show() {
 		// Prints the definition of an action
+		var str = 'when ' + this.condition[0] + ' ' + this.condition[1] + ' ' + this.condition[2] + ' ' + this.condition[3] + ', '
 		console.group()
 		console.log('[CONDITIONAL ACTION]')
-		console.log(super.show() + ' (number of charges: ' + this.charges + ')')
+		console.log(str + super.show() + ' (number of charges: ' + this.charges + ')')
 		console.groupEnd()
 	}
 
@@ -307,14 +321,85 @@ class ConditionalAction extends Action {
 	}
 }
 
+function rollDice(dice) {
+	let max = dice[1]
+	let accm = 0
+	for(var ii = 0; ii < dice[0]; ii++) {
+		accm += Math.floor(Math.random() * (max - 1) + 1)
+	}
+	return accm
+}
 
-var mage2 = new Character('mage', [11, 12, 13, 11, 16, 15], 12, 11)
-var ac1 = new DefaultAction('attack', 'enemy', '', '', 1, 10, '1d4', 2)
-
-mage2.addAction(ac1)
-mage2.show()
 
 
-var dc1 = new ConditionalAction('heal', 'own', '', '', 1, 10, '2d4', 2, 3)
-dc1.addCondition('own', 'hp', '=;half')
-dc1.show()
+class Scenario {
+	constructor() {
+		this.teamA = []
+		this.teamB = []
+		this.players = []
+	}
+
+	addCharacter(char, team) {
+		if(team.toLowerCase() == 'a') {
+ 			this.teamA.push(char)
+ 		} else if(team.toLowerCase() == 'b') {
+ 			this.teamB.push(char)
+ 		} else {
+ 			console.error('Invalid team provided (can only be "a", or "b"). Character is discarded.')
+ 		}
+	}
+
+	rollInitiative() {
+		this.players = []
+		for(var ii = 0; ii < this.teamA.length; ii++) {
+			this.teamA[ii].init = rollDice([1, 20])
+			this.teamA[ii].init = [this.teamA[ii].init + this.teamA[ii].mods[1], this.teamA[ii].init]
+			this.teamA[ii].team = 'A'
+			this.players.push(this.teamA[ii])
+		}
+		for(var ii = 0; ii < this.teamB.length; ii++) {
+			this.teamB[ii].init = rollDice([1, 20])
+			this.teamB[ii].init = [this.teamB[ii].init + this.teamB[ii].mods[1], this.teamB[ii].init]
+			this.teamB[ii].team = 'B'
+			this.players.push(this.teamB[ii])
+		}
+
+		this.players = this.players.sort((a, b) => b['init'][0] - a['init'][0])
+	}
+
+	runCombat() {
+		this.rollInitiative()
+		console.log(this.players)
+
+	}
+}
+
+
+var raven = new Character('mage', [11, 12, 13, 11, 16, 15], 12, 11)
+var da1 = new DefaultAction('attack', 'enemy', '', '', 1, 10, '1d4', 2)
+//da1.show()
+var ca1 = new ConditionalAction('heal', 'own', '', '', 1, 10, '2d4', 2, 3)
+ca1.addCondition('own', 'hp', '=;half')
+//ca1.show()
+
+raven.addAction(da1)
+raven.addAction(ca1)
+//raven.show()
+//raven.showActions()
+
+
+
+var hawk = new Character('Hawk', [5, 16, 8, 2, 14, 6], 1, 13)
+//Talons. Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: (1d1) slashing damage.
+hawk.addAction(new DefaultAction('attack', 'enemy', '', '1d20', 5, '', '1d1', 0))
+//hawk.show()
+//hawk.showActions()
+
+
+
+var s = new Scenario()
+
+s.addCharacter(raven, 'a')
+s.addCharacter(hawk, 'b')
+
+s.runCombat()
