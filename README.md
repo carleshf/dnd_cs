@@ -104,7 +104,7 @@ The `ConditionalAction` class' constructor expects the same arguments as the `De
 
  9. `chag` (int): Number of charged/uses for the conditional action.
 
-But since this is a mage from a rich family, it also has two [common healing potions](https://roll20.net/compendium/dnd5e/Potion%20of%20Healing#content). To add them, we will use, too, the `ContitionalAction` class:
+But since this is a mage from a rich family, it also has two [_common healing potions_](https://roll20.net/compendium/dnd5e/Potion%20of%20Healing#content). To add them, we will use, too, the `ContitionalAction` class:
 
 ```javascript
 var healing = new ConditionalAction('heal', 'own', '', '', 0, '', '2d4', 2, 2)
@@ -119,6 +119,8 @@ As we see, the `ConditionalAction` implements a method `addCondition` that expec
  3. `con_chk` (_str_): Comparison to be done using to particles, the first part the equality/inequality and the second the value,separated by semicolon. 
     * particle 1: `<`, `=`, `>`, `!=`
 	* particle 2: a number, `"half"`, `"third"`
+
+Therefore, the mage will consume one healing potion once its hit points are reduced under its half. So, we used the _charges_ of the 'ConditionalAction' to emulate the existence of this accoutrement.
 
 Using `show` and `showActions` we can verify the powerful mage:
 
@@ -141,4 +143,4 @@ mage_lvl1.showActions()
   when undefined undefined undefined undefined, attack to lowestac enemy with ability throw of a 1d20 +5 with a DC of "enemy AC" to damage 3d8 points (number of charges: 1)
   [CONDITIONAL ACTION]
   when own hp <= half, heal own to restore 2d4 +2 points (number of charges: 2)
-```
+``
