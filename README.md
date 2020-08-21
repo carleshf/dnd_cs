@@ -11,12 +11,9 @@
 
 Let's start creating a low level monster, a [Hawk](https://roll20.net/compendium/dnd5e/Hawk#content). Its characteristics are:
 
- 1. STR `->` 5 (-3)
- 2. DEX `->` 16 (+3)
- 3. CON `->` 8 (-1)
- 4. INT `->` 2 (-4)
- 5. WIS `->` 14 (+2)
- 6. CHA `->`  6 (-2)
+|   STR |     DEX |    CON |    INT |     WIS |    CHA |
+|------:|--------:|-------:|-------:|--------:|-------:|
+|5 (-3) | 16 (+3) | 8 (-1) | 2 (-4) | 14 (+2) | 6 (-2) |
 
 Also, its AC and its HP are 13 and 1 respectively.
 
@@ -143,3 +140,12 @@ mage_lvl1.showActions()
   [CONDITIONAL ACTION]
   when own hp <= half, heal own to restore 2d4 +2 points (number of charges: 2)
 ```
+
+## Action cycle
+
+During the simulation of the command, the actions are evaluated as:
+
+ 1. `ConditionalAction` with no condition can be used? If yes, it is used. If more than one exists, the order used to decide with one is consumed first corresponds to the order of addition to the character.
+ 2. `ConditionalAction` with condition can be used and its condition is applicable? If yes, it is used. Same situation and (1) in case of multiple matches.
+ 3. `DefaultAction`.
+
