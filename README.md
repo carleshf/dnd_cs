@@ -2,11 +2,9 @@
 
 
 
-## How to create a character
+## Creating characters and actions
 
 ### Simple characters
-
-#### Character definition
 
 Let's start creating a low level monster, a [Hawk](https://roll20.net/compendium/dnd5e/Hawk#content). Its characteristics are:
 
@@ -31,8 +29,6 @@ The 'Character' class' constructor expects 4 arguments:
  2. `chars` (_array_): Scores for each characteristic of the character. Following this order: strength, dexterity, constitution, intelligence, wisdom, and charisma.
  3. `hp` (_integer_): Hit points of the character.
  4. `ca` (_integer_): Armor class of the character.
-
-#### Adding character's actions
 
 The Hawk has a single attach that has a `+5` modifier and deals a 1 point of damage. Since it has no other actions, this one will be a `DefaultAction`so:
 

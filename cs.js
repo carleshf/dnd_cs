@@ -273,7 +273,11 @@ class ConditionalAction extends Action {
 
 	show() {
 		// Prints the definition of an action
-		var str = 'when ' + this.condition[0] + ' ' + this.condition[1] + ' ' + this.condition[2] + ' ' + this.condition[3] + ', '
+		if(this.condition.length > 0) {
+			var str = 'when ' + this.condition[0] + ' ' + this.condition[1] + ' ' + this.condition[2] + ' ' + this.condition[3] + ', '
+		} else {
+			var str = ''
+		}
 		console.group()
 		console.log('[CONDITIONAL ACTION]')
 		console.log(str + super.show() + ' (number of charges: ' + this.charges + ')')
@@ -385,7 +389,7 @@ ca1.addCondition('own', 'hp', '=;half')
 raven.addAction(da1)
 raven.addAction(ca1)
 //raven.show()
-//raven.showActions()
+raven.showActions()
 
 
 
@@ -402,4 +406,19 @@ var s = new Scenario()
 s.addCharacter(raven, 'a')
 s.addCharacter(hawk, 'b')
 
-s.runCombat()
+//s.runCombat()
+
+
+var mage_lvl1 = new Character('Novice', [10, 10, 11, 17, 12, 10], 6, 10)
+mage_lvl1.addAction(new DefaultAction('attack', 'enemy', 'lowestHP', '1d20', 2, '', '1d8', 0))
+mage_lvl1.addAction(new ConditionalAction('attack', 'enemy', 'lowestAC', '1d20', 5, '', '3d8', 0, 1))
+
+var healing = new ConditionalAction('heal', 'own', '', '', 0, '', '2d4', 2, 2)
+healing.addCondition('own', 'hp', '<=;half')
+
+mage_lvl1.addAction(healing)
+
+
+mage_lvl1.show()
+mage_lvl1.showActions()
+
