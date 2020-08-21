@@ -4,6 +4,7 @@
   * [Creating characters and actions](#creating-characters-and-actions)
     + [Simple characters](#simple-characters)
     + [Complex characters](#complex-characters)
+  * [Action cycle](#action-cycle)
 
 ## Creating characters and actions
 
